@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LMIC Dementia Studies Globe</title>
+
+  <script src="https://unpkg.com/globe.gl"></script>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #globeViz {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+<div id="globeViz"></div>
+
+<script>
+const world = Globe()
+(document.getElementById('globeViz'))
+.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+.backgroundColor('#ffffff');
+
+fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
+.then(res => res.json())
+.then(countries => {
+
+  const highlighted = {
+    China: 34,
+    India: 14,
+    Brazil: 10,
+    Iran: 4,
+    Indonesia: 3,
+    Thailand: 2,
+    Turkey: 2,
+    Argentina: 1,
+    Colombia:1,
+    Ecuador:1,
+    Mongolia:1
+  };
+
+  countries.features.forEach(f => {
+    const name = f.properties.name;
+    f.properties.value = highlighted[name] || 0;
+  });
+
+  world
+    .polygonsData(countries.features)
+    .polygonCapColor(feat =>
+      feat.properties.value > 0
+        ? `rgba(255,0,0,${feat.properties.value/34})`
+        : 'rgba(200,200,200,0.3)'
+    )
+    .polygonSideColor(() => 'rgba(0,0,0,0.05)')
+    .polygonStrokeColor(() => '#111')
+    .polygonLabel(feat =>
+      feat.properties.value > 0
+        ? `<b>${feat.properties.name}</b><br>Studies: ${feat.properties.value}`
+        : feat.properties.name
+    );
+});
+</script>
+</body>
+</html>
